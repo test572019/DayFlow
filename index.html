@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4f46e5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="DayFlow">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>DayFlow – Smart Daily Planner</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f6f7fb;--card:#fff;--ink:#1c2233;--mut:#6b7389;--line:#e4e7f0;--acc:#4f46e5;--acc2:#eef0ff;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--work:#2563eb;--life:#db2777}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1220;--card:#181c2e;--ink:#eceefb;--mut:#9aa2bd;--line:#2a3050;--acc:#8b87ff;--acc2:#23284a;--work:#60a5fa;--life:#f472b6}}
+:root[data-theme="dark"]{--bg:#0f1220;--card:#181c2e;--ink:#eceefb;--mut:#9aa2bd;--line:#2a3050;--acc:#8b87ff;--acc2:#23284a;--work:#60a5fa;--life:#f472b6}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1050px;margin:0 auto;padding:16px}.narrow{max-width:480px}
+.hide{display:none!important}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+h1{margin:0;font-size:22px}h2{margin:0 0 10px;font-size:16px}
+.sub{color:var(--mut);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px;align-items:start}
+.moods{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px}
+.mood{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 4px;cursor:pointer;font:inherit;text-align:center}
+.mood b{display:block;font-size:24px;font-weight:400}
+.mood.on{border-color:var(--acc);background:var(--acc2);font-weight:600}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 0;align-items:center}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer;font:inherit;font-size:13px}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+input,select,button{font:inherit}
+input,select{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:9px 10px;min-width:0;width:100%}
+label{display:grid;gap:4px;font-size:13px;color:var(--mut)}
+form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+form .full{grid-column:1/-1}
+button.pri{background:var(--acc);color:#fff;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600}
+.err{color:var(--bad);font-size:13px;margin-top:8px;min-height:18px}
+.task{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:0}
+.task input[type=checkbox]{width:20px;height:20px;margin-top:2px;accent-color:var(--acc);flex:none}
+.task.done .t{text-decoration:line-through;color:var(--mut)}
+.t{font-weight:600;word-break:break-word}
+.t[contenteditable]{outline:0;cursor:text}.t[contenteditable]:focus{background:var(--acc2);border-radius:6px}
+.meta{font-size:12px;color:var(--mut);display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;align-items:center}
+.tag{padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;border:1px solid currentColor}
+.work{color:var(--work)}.life{color:var(--life)}.high{color:var(--bad)}.med{color:var(--warn)}.low{color:var(--ok)}
+.x{margin-left:auto;background:none;border:0;color:var(--mut);cursor:pointer;font-size:18px}
+.fb{font-size:11px;padding:1px 10px}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:6px 0 2px}
+.bar i{display:block;height:100%;background:var(--ok);transition:width .3s}
+.tl{margin:0;padding:0;list-style:none}
+.tl li{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.tl li:last-child{border:0}
+.tm{width:52px;flex:none;font-variant-numeric:tabular-nums;color:var(--mut);font-size:13px}
+.tl .k{font-weight:600}.tl .brk .k{color:var(--ok)}.tl .care .k{color:var(--life)}
+.msg{background:var(--acc2);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.empty{color:var(--mut);padding:14px 0;text-align:center}
+.banner{background:var(--acc2);border-radius:10px;padding:8px 12px;margin-bottom:12px;font-size:13px}
+.big{font-size:38px;font-weight:700;font-variant-numeric:tabular-nums}
+.coach{white-space:pre-wrap;margin-top:10px}
+.hist{display:flex;gap:6px;justify-content:space-between;font-size:22px;text-align:center}
+@media (max-width:420px){form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN / REGISTER ============ -->
+<div id="auth" class="wrap narrow hide">
+  <div class="card">
+    <h1>🌤️ DayFlow</h1>
+    <div class="sub">Your private daily planner. Sign in on any device and see your own tasks. Only you can read your data.</div>
+    <div class="seg"><button class="chip on" data-tab="reg">Create account</button><button class="chip" data-tab="in">Sign in</button></div>
+
+    <form id="regf" autocomplete="off">
+      <input class="full" id="r_name" placeholder="Full name" maxlength="40" required>
+      <input class="full" id="r_user" placeholder="Username (letters, numbers, _)" maxlength="20" autocapitalize="none" required>
+      <label class="full">Date of birth<input id="r_dob" type="date" required></label>
+      <label>I am a…<select id="r_role"><option>Employee</option><option>Manager</option><option>Student</option><option>Freelancer</option><option>Parent / home</option><option>Other</option></select></label>
+      <label>My main goal<select id="r_goal"><option value="prod">Be more productive</option><option value="bal">Work-life balance</option><option value="stress">Reduce stress</option><option value="study">Study better</option><option value="fit">Build healthy habits</option></select></label>
+      <label class="full">Wake-up time<input id="r_wake" type="time" value="07:00"></label>
+      <input class="full" id="r_email" type="email" placeholder="Email" autocomplete="email" required>
+      <input class="full" id="r_pass" type="password" placeholder="Password (8+ characters)" minlength="8" autocomplete="new-password" required>
+      <button class="pri full" type="submit">Create my account</button>
+    </form>
+
+    <form id="inf" class="hide">
+      <input class="full" id="i_email" type="email" placeholder="Email" autocomplete="email" required>
+      <input class="full" id="i_pass" type="password" placeholder="Password" autocomplete="current-password" required>
+      <button class="pri full" type="submit">Sign in</button>
+      <button class="chip full" type="button" id="forgot">Forgot password?</button>
+    </form>
+
+    <form id="recf" class="hide">
+      <div class="full sub">Choose a new password</div>
+      <input class="full" id="rec_pass" type="password" placeholder="New password (8+ characters)" minlength="8" autocomplete="new-password" required>
+      <button class="pri full" type="submit">Save new password</button>
+    </form>
+    <div class="err" id="aerr"></div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" class="wrap hide">
+  <header>
+    <div><h1 id="hello"></h1><div class="sub" id="date"></div></div>
+    <div class="seg" style="margin:0"><span class="sub" id="sync"></span><button class="chip" data-act="menu">⚙️ Account</button></div>
+  </header>
+  <div id="banner"></div>
+
+  <div class="card hide" id="menu">
+    <h2>Your account</h2>
+    <div class="sub" id="prof"></div>
+    <div class="seg">
+      <button class="chip" data-act="logout">Sign out</button>
+      <button class="chip" data-act="delete" id="delbtn" style="color:var(--bad)">Delete account &amp; data</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>How are you feeling today?</h2>
+    <div class="moods" id="moods"></div>
+    <div class="seg"><span class="sub">Energy:</span><span id="energy"></span></div>
+  </div>
+
+  <div class="grid">
+    <section>
+      <div class="card">
+        <h2>Add a task</h2>
+        <form id="f" style="margin-top:0">
+          <input class="full" id="title" placeholder="Try: Call client tomorrow !high 30m #work" maxlength="120" required>
+          <select id="cat"><option value="work">💼 Work</option><option value="life">🏡 Life</option></select>
+          <select id="pri"><option value="high">High priority</option><option value="med" selected>Medium priority</option><option value="low">Low priority</option></select>
+          <select id="eff"><option value="1">Quick (15 min)</option><option value="2" selected>Medium (30 min)</option><option value="3">Deep work (60 min)</option></select>
+          <input id="due" type="date" aria-label="Due date">
+          <select id="rep" class="full" aria-label="Repeat"><option value="">No repeat</option><option value="daily">🔁 Repeat daily</option><option value="weekly">🔁 Repeat weekly</option></select>
+          <button class="pri full" type="submit">Add task</button>
+        </form>
+      </div>
+      <div class="card">
+        <h2>My tasks</h2>
+        <div class="seg" style="margin:0 0 8px" id="filters"></div>
+        <div id="prog"></div>
+        <div id="list"></div>
+      </div>
+    </section>
+    <section>
+      <div class="card"><h2>✨ Your recommended routine</h2><div id="routine"></div></div>
+      <div class="card hide" id="focuscard"><h2>⏱️ Focus mode</h2><div id="ftitle" class="t"></div><div class="big" id="ftime">--:--</div><div class="sub" id="fmsg"></div><div class="seg"><button class="chip" data-fstop="1">Stop</button></div></div>
+      
+      <div class="card"><h2>📈 Your week</h2><div id="hist"></div></div>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const addDays=(s,n)=>{const d=new Date(s+'T12:00');d.setDate(d.getDate()+n);return iso(d)};
+const today=iso(new Date());
+const uid=()=>'t'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
+
+const MOODS={
+ energised:{e:'🤩',l:'Energised',blk:50,brk:10,order:'hard',msg:'Peak energy: tackle the hardest work first, in longer focus blocks.',start:[['Hydrate + plan the top 3 wins',10,'Set intent before you open messages']],brkTip:'Stretch and refill water',eve:['Workout or brisk walk',30,'Spend the extra energy']},
+ focused:{e:'🎯',l:'Focused',blk:45,brk:10,order:'hard',msg:'Great focus: deep work early, lighter tasks later.',start:[['Hydrate + clear your desk',10,'Phone away, one tab']],brkTip:'Look away from the screen',eve:['Read or hobby time',30,'Unwind with something you enjoy']},
+ calm:{e:'😌',l:'Calm',blk:40,brk:10,order:'mixed',msg:'Steady mood: a balanced mix of important and easy tasks.',start:[['Morning coffee + review the day',10,'']],brkTip:'Short walk',eve:['Dinner & family/friends time',45,'']},
+ tired:{e:'😴',l:'Tired',blk:25,brk:10,order:'easy',cap:5,msg:'Low fuel: easy wins first, short blocks, extra rest. Be kind to yourself.',start:[['Water, daylight & light stretch',15,'Gentle start'],['Pick only the essentials',5,'']],brkTip:'Rest your eyes, no screens',eve:['Early wind-down & sleep',45,"Protect tonight's sleep"]},
+ stressed:{e:'😣',l:'Stressed',blk:25,brk:10,order:'priority',cap:3,msg:'Overloaded: we cut the list to the 3 that matter most. The rest can wait.',start:[['Box breathing (4-4-4-4)',5,'Slow your system down'],['Brain dump everything on paper',10,'Then close the loop']],brkTip:'Walk outside, breathe',eve:['Walk 15 min + no work talk',20,'Let the day end']},
+ low:{e:'😔',l:'Low',blk:20,brk:15,order:'easy',cap:3,msg:'Heavy day: only 3 small tasks, lots of breaks. Doing a little is enough.',start:[['Shower, water, breakfast',20,'Basics first'],['Message someone you trust',5,'']],brkTip:'Do something comforting',eve:['Comfort time (music, tea, show)',40,'']}
+};
+const GOALS={prod:'Goal: productivity — protect your first focus block.',bal:'Goal: balance — finish work tasks before the evening.',stress:'Goal: less stress — keep the list short and take every break.',study:'Goal: study — use focus mode for each study block.',fit:'Goal: healthy habits — add a repeating daily task for them.'};
+const PRI={high:0,med:1,low:2};
+let U=null,D=null,catF='all',mood=null,energy=2,tm=null,delArm=false;
+
+/* ---------- cloud accounts + sync (Supabase) ---------- */
+const SUPABASE_URL='https://gxeogadxneravvgxmkcw.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4ZW9nYWR4bmVyYXZ2Z3hta2N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE4ODA5OTksImV4cCI6MjEwNzQ1Njk5OX0.VkF-gqO5jc-Wa9T7kCk_E4j-GQ7E6cz2ohkqcIuaZlI';
+let sb=null,UID=null,remoteAt=null,saveT=null,dirty=false,ver=0,recovering=false;
+try{sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)}catch(e){}
+const SETUP_MSG='Setup needed: add your Supabase URL and anon key at the top of the script.';
+function age(dob){const b=new Date(dob+'T12:00'),n=new Date();let a=n.getFullYear()-b.getFullYear();if(n<new Date(n.getFullYear(),b.getMonth(),b.getDate()))a--;return a}
+const err=m=>{$('#aerr').textContent=m||''};
+const setSync=m=>{const s=$('#sync');if(s)s.textContent=m};
+function banner(m){$('#banner').innerHTML=m?'<div class="banner">'+esc(m)+'</div>':''}
+function showAuth(tab){
+  $('#app').classList.add('hide');$('#auth').classList.remove('hide');
+  document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  $('#regf').classList.toggle('hide',tab!=='reg');$('#inf').classList.toggle('hide',tab!=='in');$('#recf').classList.add('hide');
+}
+if(sb)sb.auth.onAuthStateChange(ev=>{
+  if(ev==='PASSWORD_RECOVERY'){recovering=true;$('#app').classList.add('hide');$('#auth').classList.remove('hide');$('#regf').classList.add('hide');$('#inf').classList.add('hide');$('#recf').classList.remove('hide')}
+});
+
+$('#regf').addEventListener('submit',async e=>{
+  e.preventDefault();err('');
+  if(!sb)return err(SETUP_MSG);
+  const u=$('#r_user').value.trim().toLowerCase(),name=$('#r_name').value.trim(),dob=$('#r_dob').value,email=$('#r_email').value.trim(),pw=$('#r_pass').value;
+  if(!name)return err('Please enter your name.');
+  if(!/^[a-z0-9_]{3,20}$/.test(u))return err('Username must be 3–20 letters, numbers or _.');
+  const a=dob?age(dob):0;
+  if(!dob||dob>today||a<13||a>120)return err('Please enter a valid date of birth (you must be 13 or older).');
+  if(pw.length<8)return err('Password must be at least 8 characters.');
+  const chk=await sb.rpc('username_available',{u});
+  if(chk.error)return err(chk.error.message);
+  if(!chk.data)return err('That username is taken. Try another.');
+  const {data,error}=await sb.auth.signUp({email,password:pw,options:{data:{name,username:u,dob,role:$('#r_role').value,goal:$('#r_goal').value,wake:$('#r_wake').value||'07:00'}}});
+  if(error)return err(error.message);
+  if(!data.session){showAuth('in');return err('Account created! Check your email to confirm it, then sign in.')}
+  await startSession(data.session);
+});
+$('#inf').addEventListener('submit',async e=>{
+  e.preventDefault();err('');
+  if(!sb)return err(SETUP_MSG);
+  const {data,error}=await sb.auth.signInWithPassword({email:$('#i_email').value.trim(),password:$('#i_pass').value});
+  if(error)return err(error.message);
+  await startSession(data.session);
+});
+$('#forgot').addEventListener('click',async()=>{
+  err('');const em=$('#i_email').value.trim();
+  if(!sb||!em)return err('Type your email above first.');
+  const {error}=await sb.auth.resetPasswordForEmail(em,{redirectTo:location.href.split('#')[0]});
+  err(error?error.message:'Password reset email sent. Check your inbox.');
+});
+$('#recf').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const {error}=await sb.auth.updateUser({password:$('#rec_pass').value});
+  if(error)return err(error.message);
+  recovering=false;err('');const {data}=await sb.auth.getSession();
+  if(data.session)await startSession(data.session);
+});
+
+async function startSession(session){
+  UID=session.user.id;
+  const [p,d]=await Promise.all([sb.from('profiles').select('*').single(),sb.from('user_data').select('data,updated_at').single()]);
+  if(p.error||d.error){await sb.auth.signOut();UID=null;showAuth('in');return err('Could not load your account: '+(p.error||d.error).message)}
+  U={name:p.data.name,username:p.data.username,dob:p.data.dob,role:p.data.role,goal:p.data.goal,wake:p.data.wake||'07:00',created:String(p.data.created_at).slice(0,10)};
+  D=d.data.data||{};D.tasks=Array.isArray(D.tasks)?D.tasks:[];D.moods=D.moods||{};remoteAt=d.data.updated_at;
+  const m=D.moods[today];mood=m&&MOODS[m.mood]?m.mood:null;energy=m?m.energy||2:2;
+  $('#auth').classList.add('hide');$('#app').classList.remove('hide');$('#menu').classList.add('hide');
+  banner('');setSync('☁️ Synced');render();window.scrollTo(0,0);
+}
+function save(){ver++;dirty=true;clearTimeout(saveT);setSync('Saving…');saveT=setTimeout(flush,600)}
+async function flush(){
+  if(!U||!sb||!dirty)return;
+  const v=ver,{data,error}=await sb.from('user_data').upsert({user_id:UID,data:D}).select('updated_at').single();
+  if(error){setSync('⚠️ Offline — will retry');return}
+  remoteAt=data.updated_at;if(v===ver){dirty=false;setSync('☁️ Synced')}
+}
+async function pull(){
+  if(!U||!sb||dirty)return;
+  const {data}=await sb.from('user_data').select('data,updated_at').single();
+  if(data&&new Date(data.updated_at)>new Date(remoteAt)){D=data.data||{};D.tasks=D.tasks||[];D.moods=D.moods||{};remoteAt=data.updated_at;render();setSync('☁️ Synced')}
+}
+window.addEventListener('online',flush);
+document.addEventListener('visibilitychange',()=>{document.hidden?flush():pull()});
+async function logout(){
+  clearInterval(tm);$('#focuscard').classList.add('hide');
+  if(dirty)await flush();
+  if(sb)await sb.auth.signOut();
+  U=D=UID=null;dirty=false;showAuth('in');
+}
+async function deleteAccount(){
+  const {error}=await sb.rpc('delete_my_account');
+  if(error)return banner('Could not delete your account: '+error.message);
+  dirty=false;try{await sb.auth.signOut()}catch(e){}
+  U=D=UID=null;showAuth('reg');err('Your account and data were deleted.');
+}
+
+/* ---------- tasks ---------- */
+function put(t){const i=D.tasks.findIndex(x=>x.id===t.id);if(i<0)D.tasks.push(t);else D.tasks[i]=t;save();render()}
+function toggle(id){
+  const t=D.tasks.find(x=>x.id===id);if(!t)return;
+  t.done=!t.done;
+  if(t.done&&t.rep)D.tasks.push({...t,id:uid(),done:false,due:addDays(t.due||today,t.rep==='weekly'?7:1)});
+  save();render();
+}
+function parseQuick(s){
+  const o={cat:$('#cat').value,pri:$('#pri').value,min:0,due:$('#due').value||''};
+  s=' '+s+' ';
+  s=s.replace(/ #(work|life) /i,(m,c)=>{o.cat=c.toLowerCase();return ' '})
+   .replace(/ !(high|med|low) /i,(m,c)=>{o.pri=c.toLowerCase();return ' '})
+   .replace(/ (\d+)(m|h) /i,(m,n,u)=>{o.min=+n*(u.toLowerCase()==='h'?60:1);return ' '})
+   .replace(/ (today|tomorrow) /i,(m,c)=>{o.due=addDays(today,c.toLowerCase()==='today'?0:1);return ' '});
+  o.title=s.trim();return o;
+}
+$('#f').addEventListener('submit',e=>{
+  e.preventDefault();
+  const raw=$('#title').value.trim();if(!raw)return;
+  const p=parseQuick(raw),eff=p.min?(p.min<=20?1:p.min<=45?2:3):+$('#eff').value;
+  put({id:uid(),title:p.title||raw,cat:p.cat,pri:p.pri,eff,min:p.min||[0,15,30,60][eff],due:p.due,rep:$('#rep').value,done:false,at:Date.now()});
+  $('#title').value='';$('#due').value='';
+});
+
+/* ---------- smart routine ---------- */
+const fmt=m=>String(Math.floor(m/60)%24).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+function buildRoutine(){
+  const m=MOODS[mood];if(!m)return null;
+  let blk=m.blk+(energy-2)*5,cap=m.cap||99;if(energy===1)cap=Math.min(cap,4);
+  const cmpDue=(a,b)=>(a.due||'9999').localeCompare(b.due||'9999');
+  const sorters={hard:(a,b)=>b.eff-a.eff||PRI[a.pri]-PRI[b.pri]||cmpDue(a,b),easy:(a,b)=>a.eff-b.eff||PRI[a.pri]-PRI[b.pri]||cmpDue(a,b),priority:(a,b)=>PRI[a.pri]-PRI[b.pri]||cmpDue(a,b),mixed:(a,b)=>PRI[a.pri]-PRI[b.pri]||cmpDue(a,b)||b.eff-a.eff};
+  const sorted=D.tasks.filter(t=>!t.done).sort(sorters[m.order]);
+  const sel=sorted.slice(0,cap),later=sorted.slice(cap);
+  sel.sort((a,b)=>(a.cat===b.cat?0:a.cat==='work'?-1:1));
+  const [wh,wm]=(U.wake||'07:00').split(':').map(Number);
+  let t=Math.min((wh*60+wm)+45,720),focus=0,lunch=false;const items=[];
+  const add=(type,label,min,sub)=>{items.push({s:t,type,label,min,sub});t+=min};
+  m.start.forEach(s=>add('care',s[0],s[1],s[2]));
+  sel.forEach((k,i)=>{
+    if(!lunch&&t>=780){add('brk','Lunch & a proper break',45,'Step away from screens');lunch=true;focus=0}
+    add('tsk',k.title,k.min,(k.cat==='work'?'💼 Work':'🏡 Life')+' · '+({high:'High',med:'Medium',low:'Low'})[k.pri]+' priority');
+    focus+=k.min;
+    if(focus>=blk&&i<sel.length-1){add('brk',m.brk+' min reset',m.brk,m.brkTip);focus=0}
+  });
+  if(!sel.length)add('care','No open tasks — add some to plan your day',0,'');
+  add('care','Review the day & plan tomorrow',10,'Celebrate what you finished');
+  add('care',m.eve[0],m.eve[1],m.eve[2]);
+  return {m,items,later};
+}
+
+/* ---------- render ---------- */
+function render(){
+  if(!U)return;
+  const first=U.name.split(' ')[0],bday=U.dob.slice(5)===today.slice(5);
+  $('#hello').textContent=(bday?'🎂 Happy birthday, ':'👋 Hi, ')+first+(bday?'!':'');
+  $('#date').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'});
+  $('#prof').textContent=U.name+' · @'+U.username+' · age '+age(U.dob)+' · '+U.role+' · wakes at '+U.wake+' · member since '+U.created;
+  $('#moods').innerHTML=Object.entries(MOODS).map(([k,v])=>`<button class="mood ${k===mood?'on':''}" data-mood="${k}"><b>${v.e}</b>${v.l}</button>`).join('');
+  $('#energy').innerHTML=[['1','🔋 Low'],['2','⚡ Medium'],['3','🚀 High']].map(([k,l])=>`<button class="chip ${+k===energy?'on':''}" data-energy="${k}">${l}</button>`).join('');
+  $('#filters').innerHTML=[['all','All'],['work','💼 Work'],['life','🏡 Life']].map(([k,l])=>`<button class="chip ${catF===k?'on':''}" data-cat="${k}">${l}</button>`).join('');
+  const done=D.tasks.filter(t=>t.done).length;
+  $('#prog').innerHTML=D.tasks.length?`<div class="sub">${done} of ${D.tasks.length} tasks done</div><div class="bar"><i style="width:${Math.round(done/D.tasks.length*100)}%"></i></div>`:'';
+  const list=D.tasks.filter(t=>catF==='all'||t.cat===catF).sort((a,b)=>(a.done-b.done)||PRI[a.pri]-PRI[b.pri]||(a.due||'9999').localeCompare(b.due||'9999'));
+  $('#list').innerHTML=list.length?list.map(t=>{
+    const over=t.due&&t.due<today&&!t.done;
+    return `<div class="task ${t.done?'done':''}"><input type="checkbox" data-done="${esc(t.id)}" ${t.done?'checked':''} aria-label="Done">
+      <div><div class="t" ${t.done?'':`contenteditable="plaintext-only" data-edit="${esc(t.id)}"`}>${esc(t.title)}</div><div class="meta"><span class="tag ${esc(t.cat)}">${t.cat==='work'?'Work':'Life'}</span><span class="tag ${esc(t.pri)}">${esc(t.pri)}</span><span>${esc(t.min)} min</span>${t.rep?'<span>🔁 '+esc(t.rep)+'</span>':''}${t.due?`<span style="${over?'color:var(--bad);font-weight:600':''}">${over?'Overdue · ':'Due '}${esc(t.due)}</span>`:''}${t.done?'':`<button class="chip fb" data-focus="${esc(t.id)}">▶ Focus</button>`}</div></div>
+      <button class="x" data-del="${esc(t.id)}" aria-label="Delete">×</button></div>`}).join(''):'<div class="empty">No tasks yet. Add your first one!</div>';
+  const r=buildRoutine();
+  $('#routine').innerHTML=!r?'<div class="empty">Pick your mood above and I\'ll build a routine around your tasks.</div>':
+    `<div class="msg">${r.m.e} <b>${r.m.l}</b> — ${esc(r.m.msg)}<div class="sub" style="margin-top:4px">${esc(GOALS[U.goal]||'')}</div></div><ul class="tl">`+
+    r.items.map(i=>`<li class="${i.type}"><span class="tm">${fmt(i.s)}</span><div><div class="k">${esc(i.label)}${i.min?` <span class="sub">· ${i.min} min</span>`:''}</div>${i.sub?`<div class="sub">${esc(i.sub)}</div>`:''}</div></li>`).join('')+'</ul>'+
+    (r.later.length?`<div class="sub" style="margin-top:8px">Parked for later/tomorrow: ${r.later.map(x=>esc(x.title)).join(', ')}</div>`:'');
+  renderHist();
+}
+function renderHist(){
+  const days=[];for(let i=6;i>=0;i--)days.push(addDays(today,-i));
+  const mk=d=>D.moods[d]&&MOODS[D.moods[d].mood]?D.moods[d].mood:null;
+  let i=mk(today)?6:5,st=0;while(i>=0&&mk(days[i])){st++;i--}
+  const heavy=days.slice(-3).every(d=>['tired','stressed','low'].includes(mk(d)));
+  $('#hist').innerHTML='<div class="hist">'+days.map(d=>'<div>'+(mk(d)?MOODS[mk(d)].e:'·')+'<br><span class="sub">'+new Date(d+'T12:00').toLocaleDateString(undefined,{weekday:'short'})+'</span></div>').join('')+'</div><div class="sub" style="margin-top:8px">🔥 '+st+'-day check-in streak</div>'+(heavy?'<div class="msg" style="margin-top:8px">Your last 3 days were heavy. Plan lighter days, protect your sleep, and talk to someone you trust.</div>':'');
+}
+
+/* ---------- focus timer, coach, backup ---------- */
+function startFocus(id){
+  const t=D.tasks.find(x=>x.id===id);if(!t)return;clearInterval(tm);
+  const m=MOODS[mood],mins=Math.min(t.min,m?m.blk+(energy-2)*5:25),end=Date.now()+mins*6e4;
+  $('#focuscard').classList.remove('hide');$('#ftitle').textContent=t.title;$('#fmsg').textContent='Stay on this one thing. '+mins+' min block.';
+  const tick=()=>{const l=Math.max(0,end-Date.now()),s=Math.ceil(l/1000);$('#ftime').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');if(!l){clearInterval(tm);$('#fmsg').textContent='Time is up! Tick the task off or take your break.'}};
+  tick();tm=setInterval(tick,1000);
+}
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-mood],[data-energy],[data-cat],[data-del],[data-focus],[data-fstop],[data-coach],[data-tab],[data-act]');if(!b)return;
+  const d=b.dataset;
+  if(d.tab){err('');showAuth(d.tab);return}
+  if(!U)return;
+  if(d.mood||d.energy){if(d.mood)mood=d.mood;else energy=+d.energy;D.moods[today]={mood,energy};save();render();return}
+  if(d.cat){catF=d.cat;render();return}
+  if(d.del){D.tasks=D.tasks.filter(t=>t.id!==d.del);save();render();return}
+  if(d.focus){startFocus(d.focus);return}
+  if(d.fstop){clearInterval(tm);$('#focuscard').classList.add('hide');return}
+  if(d.act==='menu')$('#menu').classList.toggle('hide');
+  else if(d.act==='logout')logout();
+  else if(d.act==='delete'){
+    if(!delArm){delArm=true;b.textContent='Tap again to erase everything';setTimeout(()=>{delArm=false;b.textContent='Delete account & data'},4000)}
+    else{delArm=false;deleteAccount()}
+  }
+});
+document.addEventListener('change',e=>{if(U&&e.target.dataset&&e.target.dataset.done)toggle(e.target.dataset.done)});
+document.addEventListener('focusout',e=>{
+  const id=U&&e.target.dataset&&e.target.dataset.edit;if(!id)return;
+  const t=D.tasks.find(x=>x.id===id),v=e.target.textContent.trim().slice(0,120);
+  if(t&&v&&v!==t.title){t.title=v;save();render()}
+});
+$('#r_dob').max=today;
+
+/* ---------- start ---------- */
+(async function boot(){
+  if(!sb){showAuth('reg');return err(SETUP_MSG)}
+  const {data}=await sb.auth.getSession();
+  if(recovering)return;
+  if(data.session)await startSession(data.session);else showAuth('in');
+})();
+</script>
+</body>
+</html>
